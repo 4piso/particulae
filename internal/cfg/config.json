@@ -1,0 +1,5 @@
+{
+    "database":"cockorachdb",
+    "server":"http://localhost:3000",
+    "token": "sk"
+}
