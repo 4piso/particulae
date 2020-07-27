@@ -2,56 +2,74 @@ package iexcloud
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
 )
 
-// Global properties
+// global properties
 const (
-	BaseURL              = "https://cloud.iexapis.com/v1"
-	MaxConnectionPerHost = 10
+	baseURL              = "https://cloud.iexapis.com/v1"
 	RequestTimeout       = 2
+	MaxConnectionPerHost = 10
 )
 
-// Client handler the client for iexcloud rest API.
+// Client handler comunication to the iexapis
 type Client struct {
-	// httpClient handle the http client configuration
+	// httpClient is the http.Client wrapper
 	httpClient *http.Client
 }
 
-// Get is a wrapper of the http.Get method but for making the request
-// NOTE: (c Client) without pointer just means you cannot modify the reciever
-// build the iexURL using the BaseURL and some endpoint. example https://cloud.iexapis.com/v1/stocks/apple
-// Query the params from the URL
-// grap the params for url params and add it to the url
-func (c Client) Get(ctx context.Context, endpoint string, params map[string]string, body io.Reader) (*http.Response, error) {
-	iexURL := BaseURL + endpoint
-	req, err := http.NewRequestWithContext(ctx, "GET", iexURL, nil)
-	if err != nil {
-		return nil, fmt.Errorf("could not make the request: %v ", err)
-	}
-	q := req.URL.Query()
-	for k, v := range params {
-		q.Add(v, k)
-	}
-	req.URL.RawQuery = q.Encode()
-	return c.httpClient.Do(req)
-}
-
-// NewClient constructor function
+// NewClient is the constructor function
 func NewClient() *Client {
 	return &Client{
 		httpClient: createHTTPClient(),
 	}
 }
 
-// createHTTPClient private method that return the http.Client
+// Get is a wrapper for the http.Get to get more options
+// NOTE: (c Client) without pointer just means you cannot modify the receiver
+// (c *Client) has a pointer so you can mutate the public variables on the receiver c
+func (c Client) Get(ctx context.Context, endpoint string, params map[string]string, body io.Reader) (*http.Response, error) {
+	iexURL := baseURL + endpoint
+	req, err := http.NewRequestWithContext(ctx, "GET", iexURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("could not build the request: %v ", err)
+	}
+	q := req.URL.Query()
+	for k, v := range params {
+		q.Add(k, v)
+	}
+	req.URL.RawQuery = q.Encode()
+	return c.httpClient.Do(req)
+}
+
+// Quote is going to return the quote base on the services url
+// GET /stock/{symbol}/quote/
+func (c *Client) Quote(ctx context.Context, symbol string, displayPercent bool) (*Quote, error) {
+	endpoint := "stock/" + symbol + "/quote"
+	quote := new(Quote)
+	if displayPercent {
+		endpoint = endpoint + "?displayPercent=true"
+	}
+	res, err := c.Get(ctx, endpoint, nil, nil)
+	if err != nil {
+		return quote, fmt.Errorf("could not make the quote: %v ", err)
+	}
+	defer res.Body.Close()
+	if err := json.NewDecoder(res.Body).Decode(&quote); err != nil {
+		return quote, fmt.Errorf("could not decode the quote struct: %v ", err)
+	}
+	return quote, nil
+}
+
+// createHTTPClient is a private method to creat the client
 func createHTTPClient() *http.Client {
 	return &http.Client{
 		Transport: &http.Transport{
-			MaxConnsPerHost: MaxConnectionPerHost,
+			MaxIdleConns: MaxConnectionPerHost,
 		},
 		Timeout: time.Duration(RequestTimeout) * time.Second,
 	}

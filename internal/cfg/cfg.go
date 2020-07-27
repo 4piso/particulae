@@ -35,7 +35,7 @@ func (c *Config) String(key string) (string, error) {
 	defer c.mu.RUnlock()
 	value, ok := c.m[key]
 	if !ok {
-		return "", fmt.Errorf("Unkowo key: %v ", key)
+		return "", fmt.Errorf("Unknow key: %v ", key)
 	}
 	return value, nil
 }

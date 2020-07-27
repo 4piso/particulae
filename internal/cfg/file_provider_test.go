@@ -8,7 +8,7 @@ import (
 )
 
 func TestOpenFile(t *testing.T) {
-	file := cfg.FileProvider{
+	file := &cfg.FileProvider{
 		Filename: "config.json",
 	}
 	config, err := cfg.New(file)

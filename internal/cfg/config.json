@@ -1,6 +1,6 @@
 {
     "database":"cockorachdb",
     "server":"http://localhost:3000",
-    "token": "sd"
+    "token": "sd",
     "baseURL": "https://cloud.iexapis.com/v1"
 }
