@@ -1,5 +1,0 @@
-{
-    "database":"cockorachdb",
-    "server":"http://localhost:3000",
-    "baseURL": "https://cloud.iexapis.com/v1"
-}

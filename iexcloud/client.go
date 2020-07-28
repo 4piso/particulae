@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -20,13 +21,46 @@ const (
 type Client struct {
 	// httpClient is the http.Client wrapper
 	httpClient *http.Client
+
+	// token is the token from the client
+	Token string
 }
 
 // NewClient is the constructor function
-func NewClient() *Client {
+func NewClient(token string) *Client {
 	return &Client{
 		httpClient: createHTTPClient(),
+		Token:      token,
 	}
+}
+
+// Quote is going to return the quote base on the services url
+// GET /stock/{symbol}/quote
+func (c *Client) Quote(ctx context.Context, symbol string, displayPercent bool) (*Quote, error) {
+	endpoint := "/stock/" + symbol + "/quote"
+	quote := new(Quote)
+	params := make(map[string]string)
+	if displayPercent {
+		params = map[string]string{
+			"displayPercent": "true",
+		}
+	}
+	res, err := c.Get(ctx, endpoint, params, nil)
+	if err != nil {
+		log.Fatalf("Error sending the request : %v ", err)
+		return quote, nil
+	}
+	defer res.Body.Close()
+	if err := json.NewDecoder(res.Body).Decode(&quote); err != nil {
+		log.Fatalf("Error decoding the response: %v ", err)
+		return quote, err
+	}
+	return quote, nil
+}
+
+// GetToken return the token
+func (c *Client) GetToken() string {
+	return c.Token
 }
 
 // Get is a wrapper for the http.Get to get more options
@@ -42,27 +76,9 @@ func (c Client) Get(ctx context.Context, endpoint string, params map[string]stri
 	for k, v := range params {
 		q.Add(k, v)
 	}
+	q.Set("token", c.GetToken())
 	req.URL.RawQuery = q.Encode()
 	return c.httpClient.Do(req)
-}
-
-// Quote is going to return the quote base on the services url
-// GET /stock/{symbol}/quote/
-func (c *Client) Quote(ctx context.Context, symbol string, displayPercent bool) (*Quote, error) {
-	endpoint := "stock/" + symbol + "/quote"
-	quote := new(Quote)
-	if displayPercent {
-		endpoint = endpoint + "?displayPercent=true"
-	}
-	res, err := c.Get(ctx, endpoint, nil, nil)
-	if err != nil {
-		return quote, fmt.Errorf("could not make the quote: %v ", err)
-	}
-	defer res.Body.Close()
-	if err := json.NewDecoder(res.Body).Decode(&quote); err != nil {
-		return quote, fmt.Errorf("could not decode the quote struct: %v ", err)
-	}
-	return quote, nil
 }
 
 // createHTTPClient is a private method to creat the client

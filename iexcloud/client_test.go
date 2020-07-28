@@ -2,25 +2,49 @@ package iexcloud
 
 import (
 	"context"
-	"fmt"
 	"testing"
+
+	"github.com/joshvoll/particulae/internal/cfg"
 )
 
-const (
-	token = "sk_63b7a5ae9a6a43eebbf78e64b3f61a5a"
+var (
+	token  = ""
+	client = NewClient(getToken())
 )
+
+func getToken() string {
+	envConfig := &cfg.EnvProvider{
+		Namespace: "PROC",
+	}
+	config, err := cfg.New(envConfig)
+	if err != nil {
+		panic(err)
+	}
+	tok, _ := config.String("TOKEN")
+	return tok
+}
 
 func TestMakeRequest(t *testing.T) {
 	ctx := context.Background()
+	token := getToken()
 	endpoint := "/"
 	params := map[string]string{
 		"token": token,
 	}
-	client := NewClient()
-	res, err := client.Get(ctx, endpoint, params, nil)
+	client := NewClient(getToken())
+	_, err := client.Get(ctx, endpoint, params, nil)
 	if err != nil {
 		t.Fatalf("Error %v ", err)
 	}
-	fmt.Println(res)
+}
 
+func TestQuoteRequest(t *testing.T) {
+	ctx := context.Background()
+	quote, err := client.Quote(ctx, "aapl", true)
+	if err != nil {
+		t.Fatalf("Error: %v ", err)
+	}
+	if quote.Symbol != "AAPL" {
+		t.Error("should return AAPL")
+	}
 }
