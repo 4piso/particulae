@@ -5,6 +5,7 @@ The purpose of this application is to learn and possibly be able to use it to ha
 
 Just Ideas
 
+
 # Features
 
 * Read stock on real time from External service

@@ -58,6 +58,9 @@ func (c *Client) Quote(ctx context.Context, symbol string, displayPercent bool) 
 	return quote, nil
 }
 
+// HELPERS METHODS
+// ADDING FOR USE BY OTHER METHOD
+
 // GetToken return the token
 func (c *Client) GetToken() string {
 	return c.Token
