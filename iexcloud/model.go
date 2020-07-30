@@ -1,5 +1,25 @@
 package iexcloud
 
+// Earnings definition struct
+type Earnings struct {
+	Symbol   string `json:"symbol"`
+	Earnings []earnings
+}
+
+// earnings struct of the earning return type
+type earnings struct {
+	ActualEPS            float64 `json:"actualEPS"`
+	ConsensusEPS         float64 `json:"consensusEPS"`
+	AnnounceTime         string  `json:"announceTime"`
+	NumberOfEstimates    int     `json:"numberOfEstimates"`
+	EPSSurpriseDollar    float64 `json:"EPSSurpriseDollar"`
+	EPSReportDate        string  `json:"EPSReportDate"`
+	FiscalPeriod         string  `json:"fiscalPeriod"`
+	FiscalEndDate        string  `json:"fiscalEndDate"`
+	YearAgo              float64 `json:"yearAgo"`
+	YearAgoChangePercent float64 `json:"yearAgoChangePercent"`
+}
+
 // Quote is the data struct for the quote api
 type Quote struct {
 	Symbol                 string  `json:"symbol"`

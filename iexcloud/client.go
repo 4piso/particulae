@@ -58,6 +58,23 @@ func (c *Client) Quote(ctx context.Context, symbol string, displayPercent bool) 
 	return quote, nil
 }
 
+// Earnings return the eanings base on the service url
+// GET /stock/{symbol}/earnings/
+func (c *Client) Earnings(ctx context.Context, symbol string) (*Earnings, error) {
+	endpoint := "/stock/" + symbol + "/earnings"
+	earning := new(Earnings)
+	res, err := c.Get(ctx, endpoint, nil, nil)
+	if err != nil {
+		log.Fatalf("Error doing the request: %v ", err)
+	}
+	defer res.Body.Close()
+	if err := json.NewDecoder(res.Body).Decode(&earning); err != nil {
+		log.Fatalf("Errror decodeing json: %v ", err)
+		return earning, nil
+	}
+	return earning, nil
+}
+
 // HELPERS METHODS
 // ADDING FOR USE BY OTHER METHOD
 

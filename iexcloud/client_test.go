@@ -48,3 +48,14 @@ func TestQuoteRequest(t *testing.T) {
 		t.Error("should return AAPL")
 	}
 }
+
+func TestEarningsRequest(t *testing.T) {
+	ctx := context.Background()
+	earnings, err := client.Earnings(ctx, "aapl")
+	if err != nil {
+		t.Fatalf("error earnings: %v ", err)
+	}
+	if earnings.Symbol != "AAPL" {
+		t.Errorf("should be AAPL, got=%v ", earnings.Symbol)
+	}
+}
