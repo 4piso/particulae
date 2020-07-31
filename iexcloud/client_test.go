@@ -2,6 +2,7 @@ package iexcloud
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/joshvoll/particulae/internal/cfg"
@@ -58,4 +59,13 @@ func TestEarningsRequest(t *testing.T) {
 	if earnings.Symbol != "AAPL" {
 		t.Errorf("should be AAPL, got=%v ", earnings.Symbol)
 	}
+}
+
+func TestEarningsTodayRequest(t *testing.T) {
+	ctx := context.Background()
+	earningsToday, err := client.EarningsToday(ctx)
+	if err != nil {
+		t.Fatalf("error %v ", err)
+	}
+	fmt.Println(earningsToday)
 }

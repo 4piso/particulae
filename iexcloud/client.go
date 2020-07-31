@@ -75,6 +75,24 @@ func (c *Client) Earnings(ctx context.Context, symbol string) (*Earnings, error)
 	return earning, nil
 }
 
+// EarningsToday is going to return the earnig from this day
+// GET /stock/market/today-earnings
+func (c *Client) EarningsToday(ctx context.Context) (*EarningsToday, error) {
+	endpoint := "/stock/market/today-earnings"
+	earningsToday := new(EarningsToday)
+	res, err := c.Get(ctx, endpoint, nil, nil)
+	if err != nil {
+		log.Fatalf("earning today request failed: %v ", err)
+		return earningsToday, err
+	}
+	defer res.Body.Close()
+	if err := json.NewDecoder(res.Body).Decode(&earningsToday); err != nil {
+		log.Fatalf("cannot parse the response: %v ", err)
+		return earningsToday, err
+	}
+	return earningsToday, nil
+}
+
 // HELPERS METHODS
 // ADDING FOR USE BY OTHER METHOD
 

@@ -1,5 +1,19 @@
 package iexcloud
 
+// EarningsToday definition struct
+type EarningsToday struct {
+	Bto []earningsReport
+	Amc []earningsReport
+}
+
+// earningsReport collect the earnings from differente markets
+type earningsReport struct {
+	earnings
+	Symbol   string
+	Headline string
+	Quote    Quote
+}
+
 // Earnings definition struct
 type Earnings struct {
 	Symbol   string `json:"symbol"`
